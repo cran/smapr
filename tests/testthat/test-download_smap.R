@@ -16,6 +16,37 @@ test_that("non-existent directories are created", {
     unlink(dir_name, recursive = TRUE)
 })
 
+test_that("valid user-specified directories contain downloads", {
+    skip_on_cran()
+    available_data <- find_smap(id = "SPL3SMP",
+                                date = "2015-10-01",
+                                version = 4)
+    user_specified_path <- file.path('data', 'SMAP')
+    downloads <- download_smap(available_data,
+                               directory = user_specified_path)
+    expect_true(
+        file.exists(
+            file.path(user_specified_path,
+                      "SMAP_L3_SM_P_20151001_R14010_001.h5")
+            )
+        )
+    expect_true(
+        file.exists(
+            file.path(user_specified_path,
+                      "SMAP_L3_SM_P_20151001_R14010_001.h5.iso.xml")
+        )
+    )
+    expect_true(
+        file.exists(
+            file.path(user_specified_path,
+                      "SMAP_L3_SM_P_20151001_R14010_001.qa")
+        )
+    )
+
+    # clean up
+    unlink('data', recursive = TRUE, force = TRUE)
+})
+
 test_that("the downloaded data is of the data frame class", {
     skip_on_cran()
     files <- find_smap(id = "SPL3SMP", dates = "2015-03-31", version = 4)
@@ -25,9 +56,9 @@ test_that("the downloaded data is of the data frame class", {
 
 test_that("Two SPL4CMDL data files are downloaded (h5 and xml)", {
     skip_on_cran()
-    files <- find_smap(id = "SPL4CMDL", dates = "2015-05-01", version = 2)
+    files <- find_smap(id = "SPL4CMDL", dates = "2015-05-01", version = 3)
     downloads <- download_smap(files[1, ])
-    file_prefix <- "SMAP_L4_C_mdl_20150501T000000_Vv2040_001"
+    file_prefix <- downloads$name
     downloaded_files <- list.files(downloads$local_dir)
     relevant_files <- grepl(file_prefix, downloaded_files)
 
@@ -80,4 +111,13 @@ test_that("setting overwrite = TRUE ensures data overwrite", {
     modified2 <- get_last_modified(downloads)
 
     expect_gt(modified2, modified1)
+})
+
+
+test_that('input data.frames with NA values raise errors', {
+    skip_on_cran()
+    expect_warning(df_w_na <- find_smap(id = "SPL2SMP_E",
+                                        dates = '2015-05-13',
+                                        version = 1))
+    expect_error(download_smap(df_w_na))
 })
