@@ -118,6 +118,18 @@ test_that('input data.frames with NA values raise errors', {
     skip_on_cran()
     expect_warning(df_w_na <- find_smap(id = "SPL2SMP_E",
                                         dates = '2015-05-13',
-                                        version = 1))
+                                        version = 2))
     expect_error(download_smap(df_w_na))
+})
+
+test_that('verbose = TRUE prints output', {
+  skip_on_cran()
+  files <- find_smap(id = "SPL3SMP", dates = "2015-03-31", version = 4)
+  downloads <- expect_message(download_smap(files[1, ], verbose = TRUE))
+})
+
+test_that('verbose = FALSE suppresses output', {
+  skip_on_cran()
+  files <- find_smap(id = "SPL3SMP", dates = "2015-03-31", version = 4)
+  downloads <- expect_silent(download_smap(files[1, ], verbose = FALSE))
 })

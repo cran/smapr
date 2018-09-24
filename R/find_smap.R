@@ -22,9 +22,8 @@
 #' }
 #'
 #' This function requires a username and password from NASA's Earthdata portal.
-#' If you have a username and password, pass them in as environment vars using:
-#'
-#' \code{Sys.setenv(ed_un = '<your username>', ed_pw = '<your password>')}
+#' If you have an Earthdata username and password, pass them in using the
+#' \code{\link[=set_smap_credentials]{set_smap_credentials()}} function.
 #'
 #' If you do not yet have a username and password, register for one here:
 #' \url{https://urs.earthdata.nasa.gov/}
@@ -32,7 +31,8 @@
 #'
 #' @param id A character string that refers to a specific SMAP dataset, e.g.,
 #'   \code{"SPL4SMGP"} for SMAP L4 Global 3-hourly 9 km Surface and Rootzone Soil
-#'   Moisture Geophysical Data.
+#'   Moisture Geophysical Data. See "Details" for a list of supported data types 
+#'   and their associated id codes.
 #' @param dates An object of class Date or a character string formatted as
 #' %Y-%m-%d (e.g., "2016-04-01") which specifies the date(s) to search.
 #' To search for one specific date, this can be a Date object of length one. To

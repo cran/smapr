@@ -3,9 +3,8 @@
 #' This function downloads SMAP data in HDF5 format.
 #'
 #' This function requires a username and password from NASA's Earthdata portal.
-#' If you have a username and password, pass them in as environment vars using:
-#'
-#' \code{Sys.setenv(ed_un = '<your username>', ed_pw = '<your password>')}
+#' If you have an Earthdata username and password, pass them in using the
+#' \code{\link[=set_smap_credentials]{set_smap_credentials()}} function.
 #'
 #' If you do not yet have a username and password, register for one here:
 #' \url{https://urs.earthdata.nasa.gov/}
@@ -17,6 +16,8 @@
 #' character string. If left as \code{NULL}, data are stored in a user's cache
 #' directory.
 #' @param overwrite TRUE or FALSE: should existing data files be overwritten?
+#' @param verbose TRUE or FALSE: should messages be printed to indicate that 
+#' files are being downloaded?
 #' @return Returns a \code{data.frame} that appends a column called
 #' \code{local_dir} to the input data frame, which consists of a character
 #' vector specifying the local directory containing the downloaded files.
@@ -28,11 +29,12 @@
 #' }
 #' @export
 
-download_smap <- function(files, directory = NULL, overwrite = TRUE) {
+download_smap <- function(files, directory = NULL, 
+                          overwrite = TRUE, verbose = TRUE) {
     check_creds()
     directory <- validate_directory(directory)
     validate_input_df(files)
-    local_files <- fetch_all(files, directory, overwrite)
+    local_files <- fetch_all(files, directory, overwrite, verbose)
     verify_download_success(files, local_files)
     downloads_df <- bundle_to_df(files, local_files, directory)
     downloads_df
@@ -63,11 +65,12 @@ bundle_to_df <- function(desired_files, downloaded_files, local_dir) {
     merged_df
 }
 
-fetch_all <- function(files, directory, overwrite) {
+fetch_all <- function(files, directory, overwrite, verbose) {
     n_downloads <- nrow(files)
     local_files <- vector(mode = 'list', length = n_downloads)
     for (i in 1:n_downloads) {
-        local_files[[i]] <- maybe_download(files[i, ], directory, overwrite)
+        local_files[[i]] <- maybe_download(files[i, ], directory, 
+                                           overwrite, verbose)
     }
     downloaded_files <- unlist(local_files)
     downloaded_files
@@ -84,13 +87,16 @@ validate_directory <- function(destination_directory) {
     destination_directory
 }
 
-maybe_download <- function(file, local_directory, overwrite) {
+maybe_download <- function(file, local_directory, overwrite, verbose) {
     target_files <- get_rel_paths(file)
     full_target_paths <- file.path(local_directory, target_files)
     all_files_exist <- all(file.exists(full_target_paths))
     if (!all_files_exist | overwrite) {
         https_locations <- paste0(https_prefix(), file$dir, target_files)
         for (i in seq_along(full_target_paths)) {
+            if (verbose) {
+                message(paste('Downloading', https_locations[i]))
+            }
             remote_to_local(full_target_paths, https_locations, i)
         }
     }

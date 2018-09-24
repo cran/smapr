@@ -4,7 +4,8 @@
 \alias{download_smap}
 \title{Download SMAP data}
 \usage{
-download_smap(files, directory = NULL, overwrite = TRUE)
+download_smap(files, directory = NULL, overwrite = TRUE,
+  verbose = TRUE)
 }
 \arguments{
 \item{files}{A \code{data.frame} produced by \code{find_smap()}
@@ -15,6 +16,9 @@ character string. If left as \code{NULL}, data are stored in a user's cache
 directory.}
 
 \item{overwrite}{TRUE or FALSE: should existing data files be overwritten?}
+
+\item{verbose}{TRUE or FALSE: should messages be printed to indicate that 
+files are being downloaded?}
 }
 \value{
 Returns a \code{data.frame} that appends a column called
@@ -26,9 +30,8 @@ This function downloads SMAP data in HDF5 format.
 }
 \details{
 This function requires a username and password from NASA's Earthdata portal.
-If you have a username and password, pass them in as environment vars using:
-
-\code{Sys.setenv(ed_un = '<your username>', ed_pw = '<your password>')}
+If you have an Earthdata username and password, pass them in using the
+\code{\link[=set_smap_credentials]{set_smap_credentials()}} function.
 
 If you do not yet have a username and password, register for one here:
 \url{https://urs.earthdata.nasa.gov/}
